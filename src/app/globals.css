@@ -1,26 +1,69 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Palette mirrors the mobile app (mobile/src/theme/colors.js).
+   Theme is chosen by the `theme` cookie and set as data-theme on <html>. */
+:root,
+:root[data-theme="light"] {
+  --background:     #FFFFFF;
+  --surface:        #FFF0F7;
+  --card:           #FFFFFF;
+  --primary:        #DB2777;
+  --primary-light:  #FCE7F3;
+  --danger:         #EF4444;
+  --success:        #10B981;
+  --warning:        #F59E0B;
+  --info:           #3B82F6;
+  --text:           #111827;
+  --text-secondary: #6B7280;
+  --text-disabled:  #D1D5DB;
+  --border:         #FBCFE8;
+  --placeholder:    #9CA3AF;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --background:     #1A0A12;
+  --surface:        #2D1221;
+  --card:           #2D1221;
+  --primary:        #EC4899;
+  --primary-light:  #831843;
+  --danger:         #EF4444;
+  --success:        #10B981;
+  --warning:        #F59E0B;
+  --info:           #3B82F6;
+  --text:           #FDF2F8;
+  --text-secondary: #F9A8D4;
+  --text-disabled:  #4B5563;
+  --border:         #4A1942;
+  --placeholder:    #9D6E8A;
+  color-scheme: dark;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-background:     var(--background);
+  --color-surface:        var(--surface);
+  --color-card:           var(--card);
+  --color-primary:        var(--primary);
+  --color-primary-light:  var(--primary-light);
+  --color-danger:         var(--danger);
+  --color-success:        var(--success);
+  --color-warning:        var(--warning);
+  --color-info:           var(--info);
+  --color-text:           var(--text);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-disabled:  var(--text-disabled);
+  --color-border:         var(--border);
+  --color-placeholder:    var(--placeholder);
+  --font-sans: var(--font-geist-sans), var(--font-myanmar), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text);
+  -webkit-tap-highlight-color: transparent;
+}
+
+input::placeholder {
+  color: var(--placeholder);
 }

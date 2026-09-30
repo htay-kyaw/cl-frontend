@@ -1,6 +1,7 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Noto_Sans_Myanmar } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
+import { getLocale, getTheme } from "@/lib/preferences";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,19 +13,39 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Burmese is the default language
+const notoMyanmar = Noto_Sans_Myanmar({
+  variable: "--font-myanmar",
+  subsets: ["myanmar"],
+  weight: ["400", "500", "600", "700"],
+});
+
 export const metadata = {
   title: { default: "Eichit Cosmetics", template: "%s · Eichit Cosmetics" },
   description: "Shop cosmetics online from Eichit Cosmetics.",
 };
 
-export default function RootLayout({ children }) {
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#FFFFFF" },
+    { media: "(prefers-color-scheme: dark)", color: "#1A0A12" },
+  ],
+};
+
+export default async function RootLayout({ children }) {
+  const [locale, theme] = await Promise.all([getLocale(), getTheme()]);
+
   return (
     <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      lang={locale}
+      data-theme={theme}
+      className={`${geistSans.variable} ${geistMono.variable} ${notoMyanmar.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        <Providers>{children}</Providers>
+      <body className="min-h-full flex flex-col font-sans">
+        <Providers locale={locale}>{children}</Providers>
       </body>
     </html>
   );

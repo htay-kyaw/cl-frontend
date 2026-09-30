@@ -3,8 +3,10 @@
 import { useActionState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { savePhone } from '@/app/actions/auth';
+import { useT } from '@/components/Providers';
 
 export default function PhoneForm({ next }) {
+  const t      = useT();
   const router = useRouter();
   const [state, action, pending] = useActionState(savePhone, null);
 
@@ -21,12 +23,12 @@ export default function PhoneForm({ next }) {
         autoComplete="tel"
         required
         maxLength={20}
-        placeholder="09xxxxxxxxx"
-        className="rounded-lg border px-4 py-3"
+        placeholder={t('phone_placeholder')}
+        className="rounded-xl border border-border bg-surface px-4 py-3.5 text-base outline-none focus:border-primary"
       />
-      {state && !state.ok && <p className="text-sm text-red-600">{state.message}</p>}
-      <button type="submit" disabled={pending} className="rounded-lg bg-pink-600 px-4 py-3 font-medium text-white disabled:opacity-50">
-        {pending ? 'Saving…' : 'Continue'}
+      {state && !state.ok && <p className="text-sm text-danger">{state.message}</p>}
+      <button type="submit" disabled={pending} className="rounded-xl bg-primary py-3.5 font-semibold text-white disabled:opacity-50">
+        {pending ? t('saving') : t('continue')}
       </button>
     </form>
   );
