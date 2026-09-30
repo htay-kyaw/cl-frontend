@@ -1,91 +1,107 @@
-import axios from 'axios';
+import 'server-only';
+import { headers } from 'next/headers';
+import { getToken } from './session';
 
-// Same Laravel API as the mobile app — endpoints mirror mobile/src/services/api.js
-const client = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-  timeout: 10000,
-  headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-});
+// Laravel API — called only from the Next.js server (server components / Server Actions).
+// Endpoints mirror the mobile app's api.js.
+const API_URL = process.env.API_URL;
 
-// Sanctum bearer token, kept in localStorage on web (SecureStore on mobile)
-export const tokenStorage = {
-  get:   ()      => (typeof window === 'undefined' ? null : localStorage.getItem('auth_token')),
-  set:   (token) => localStorage.setItem('auth_token', token),
-  clear: ()      => { localStorage.removeItem('auth_token'); localStorage.removeItem('auth_user'); },
-};
-
-client.interceptors.request.use(config => {
-  const token = tokenStorage.get();
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-
-// token invalid → clear it; auth-aware UI reacts to the missing token
-client.interceptors.response.use(
-  response => response,
-  error => {
-    if (error.response?.status === 401 && typeof window !== 'undefined') tokenStorage.clear();
-    return Promise.reject(error);
+export class ApiError extends Error {
+  constructor(status, body) {
+    super(body?.message || `API request failed (${status})`);
+    this.status = status;
+    this.errors = body?.errors ?? null;
   }
-);
+}
+
+async function request(method, path, { body, query } = {}) {
+  const url = new URL(API_URL + path);
+  Object.entries(query ?? {}).forEach(([k, v]) => v != null && v !== '' && url.searchParams.set(k, v));
+
+  const reqHeaders = { Accept: 'application/json' };
+
+  const token = await getToken();
+  if (token) reqHeaders.Authorization = `Bearer ${token}`;
+
+  // pass the visitor's IP so Laravel rate-limits per visitor (see TRUSTED_PROXIES)
+  const forwardedFor = (await headers()).get('x-forwarded-for');
+  if (forwardedFor) reqHeaders['X-Forwarded-For'] = forwardedFor;
+
+  let payload;
+  if (body instanceof FormData) {
+    payload = body;
+  } else if (body !== undefined) {
+    payload = JSON.stringify(body);
+    reqHeaders['Content-Type'] = 'application/json';
+  }
+
+  const res = await fetch(url, { method, headers: reqHeaders, body: payload, cache: 'no-store' });
+  const json = await res.json().catch(() => null);
+
+  if (!res.ok) throw new ApiError(res.status, json);
+  return json?.data;
+}
+
+const get  = (path, query)  => request('GET', path, { query });
+const post = (path, body)   => request('POST', path, { body });
+const put  = (path, body)   => request('PUT', path, { body });
+const del  = (path)         => request('DELETE', path);
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 export const authApi = {
-  sendOtp:   (phone)             => client.post('/auth/send-otp',   { phone }),
-  verifyOtp: (phone, code, name) => client.post('/auth/verify-otp', { phone, code, name }),
-  logout:    ()                  => client.post('/auth/logout'),
+  google: (credential) => post('/auth/google', { credential }),
+  logout: ()           => post('/auth/logout'),
 };
 
 // ── Catalog ───────────────────────────────────────────────────────────────────
 export const catalogApi = {
-  banners:       ()       => client.get('/banners'),
-  announcements: ()       => client.get('/announcements'),
-  categories:    ()       => client.get('/categories'),
-  products:      (params) => client.get('/products', { params }),
-  product:       (id)     => client.get(`/products/${id}`),
-  filters:       (params) => client.get('/products/filters', { params }),
+  banners:       ()       => get('/banners'),
+  announcements: ()       => get('/announcements'),
+  categories:    ()       => get('/categories'),
+  products:      (params) => get('/products', params),
+  product:       (id)     => get(`/products/${id}`),
+  filters:       (params) => get('/products/filters', params),
 };
 
 // ── Delivery / bank ───────────────────────────────────────────────────────────
-export const deliveryApi = { zones: () => client.get('/delivery-zones') };
-export const bankApi     = { list:  () => client.get('/bank-accounts') };
+export const deliveryApi = { zones: () => get('/delivery-zones') };
+export const bankApi     = { list:  () => get('/bank-accounts') };
 
 // ── Profile ───────────────────────────────────────────────────────────────────
 export const profileApi = {
-  get:    ()     => client.get('/profile'),
-  update: (name) => client.put('/profile', { name }),
+  get:    ()     => get('/profile'),
+  update: (data) => put('/profile', data), // { name?, phone? }
 };
 
 // ── Loyalty ───────────────────────────────────────────────────────────────────
-export const loyaltyApi = { promotions: () => client.get('/promotions') };
+export const loyaltyApi = { promotions: () => get('/promotions') };
 
 // ── Addresses ─────────────────────────────────────────────────────────────────
 export const addressApi = {
-  list:    ()         => client.get('/addresses'),
-  create:  (data)     => client.post('/addresses', data),
-  update:  (id, data) => client.put(`/addresses/${id}`, data),
-  destroy: (id)       => client.delete(`/addresses/${id}`),
+  list:    ()         => get('/addresses'),
+  create:  (data)     => post('/addresses', data),
+  update:  (id, data) => put(`/addresses/${id}`, data),
+  destroy: (id)       => del(`/addresses/${id}`),
 };
 
 // ── Orders ────────────────────────────────────────────────────────────────────
 export const orderApi = {
-  list:      ()           => client.get('/orders'),
-  archived:  ()           => client.get('/orders/archived'),
-  get:       (id)         => client.get(`/orders/${id}`),
-  place:     (data)       => client.post('/orders', data),
-  cancel:    (id)         => client.post(`/orders/${id}/cancel`),
-  archive:   (id)         => client.post(`/orders/${id}/archive`),
-  unarchive: (id)         => client.post(`/orders/${id}/unarchive`),
-  requestReturn: (id, data) => client.post(`/orders/${id}/return`, data),
+  list:          ()         => get('/orders'),
+  archived:      ()         => get('/orders/archived'),
+  get:           (id)       => get(`/orders/${id}`),
+  place:         (data)     => post('/orders', data),
+  cancel:        (id)       => post(`/orders/${id}/cancel`),
+  archive:       (id)       => post(`/orders/${id}/archive`),
+  unarchive:     (id)       => post(`/orders/${id}/unarchive`),
+  requestReturn: (id, data) => post(`/orders/${id}/return`, data),
 };
 
 // ── Uploads ───────────────────────────────────────────────────────────────────
 export const uploadApi = {
+  // file: a File from a Server Action's FormData
   screenshot: (file) => {
     const form = new FormData();
     form.append('image', file);
-    return client.post('/upload/screenshot', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+    return post('/upload/screenshot', form);
   },
 };
-
-export default client;
