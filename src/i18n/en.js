@@ -48,6 +48,11 @@ const en = {
   added_to_cart:      'Added to cart',
   select_option_title:   'Select {{option}}',
   select_option_message: 'Please select a {{option}} before adding to cart.',
+  from_price:         'From {{price}}',
+  specifications:     'Specifications',
+  option:             'Option',
+  close:              'Close',
+  product_not_found:  'Product not found',
 
   // cart
   empty_cart:         'Your cart is empty',

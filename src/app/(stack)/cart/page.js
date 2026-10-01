@@ -11,9 +11,9 @@ export default async function CartPage() {
   const t = await getT();
 
   return (
-    <>
+    <div className="mx-auto w-full max-w-3xl">
       <PageHeader title={t('cart')} back cart={false} />
       <section className="px-4 py-6 md:px-0" />
-    </>
+    </div>
   );
 }

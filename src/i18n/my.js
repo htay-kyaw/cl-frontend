@@ -48,6 +48,11 @@ const my = {
   added_to_cart:      'ဈေးခြင်းထဲထည့်ပြီ',
   select_option_title:   '{{option}} ကို ရွေးချယ်ပါ',
   select_option_message: 'ဈေးခြင်းထဲ မထည့်မီ {{option}} ကို ရွေးချယ်ပါ။',
+  from_price:         '{{price}} မှစ၍',
+  specifications:     'အသေးစိတ်အချက်အလက်',
+  option:             'ရွေးချယ်စရာ',
+  close:              'ပိတ်မည်',
+  product_not_found:  'ကုန်ပစ္စည်း မတွေ့ပါ',
 
   // cart
   empty_cart:         'ဈေးခြင်းတောင်း ဗလာဖြစ်နေသည်',
