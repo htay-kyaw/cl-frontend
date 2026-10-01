@@ -138,8 +138,6 @@ const en = {
   unarchive:          'Move back to orders',
   points_earned:      '+{{points}} points earned',
   download_invoice:   'Download invoice',
-  return_note_placeholder: 'Tell us more (optional)',
-  submit:             'Submit',
   order_not_found:    'Order not found',
   order_id:           'Order',
   cancel_order:       'Cancel Order',
@@ -152,19 +150,6 @@ const en = {
   confirmed:  'Confirmed',
   delivered:  'Delivered',
   cancelled:  'Cancelled',
-
-  // return
-  request_return:       'Request Return',
-  return_request:       'Return Request',
-  return_select_reason: 'Select a reason for return:',
-  return_reason:        'Reason',
-  return_status:        'Status',
-  return_admin_note:    'Admin Note',
-  return_submitted:     'Return request submitted. Admin will contact you shortly.',
-  reason_damaged:       'Damaged / Defective',
-  reason_wrong_item:    'Wrong Item Received',
-  reason_changed_mind:  'Changed Mind',
-  reason_other:         'Other',
 
   // profile
   edit_profile:   'Edit Profile',

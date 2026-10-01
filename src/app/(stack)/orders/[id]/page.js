@@ -19,12 +19,6 @@ export async function generateMetadata({ params }) {
 const card = 'rounded-xl border border-border bg-card p-4';
 const label = 'mb-2 text-xs font-bold uppercase tracking-wider text-text-secondary';
 
-const RETURN_STYLE = {
-  approved: 'border-success text-success',
-  rejected: 'border-danger text-danger',
-  pending:  'border-warning text-warning',
-};
-
 export default async function OrderPage({ params }) {
   const { id } = await params;
   if (!(await getToken())) redirect(`/login?next=${encodeURIComponent(`/orders/${id}`)}`);
@@ -121,26 +115,9 @@ export default async function OrderPage({ params }) {
           </a>
         )}
 
-        {order.order_return && (
-          <section className={`rounded-xl border bg-card p-4 ${RETURN_STYLE[order.order_return.status] ?? 'border-border'}`}>
-            <p className={label}>{t('return_request')}</p>
-            <div className="flex flex-col gap-1.5 text-sm text-text">
-              <div className="flex justify-between gap-4"><span className="text-text-secondary">{t('return_reason')}</span><span>{order.order_return.reason}</span></div>
-              <div className="flex justify-between gap-4">
-                <span className="text-text-secondary">{t('return_status')}</span>
-                <span className={`font-bold ${RETURN_STYLE[order.order_return.status]?.split(' ')[1] ?? ''}`}>{order.order_return.status_label}</span>
-              </div>
-              {order.order_return.admin_note && (
-                <div className="flex justify-between gap-4"><span className="text-text-secondary">{t('return_admin_note')}</span><span className="text-right">{order.order_return.admin_note}</span></div>
-              )}
-            </div>
-          </section>
-        )}
-
         <OrderActions
           id={order.id}
           canCancel={order.can_cancel}
-          canReturn={order.can_return}
           canArchive={finished && !order.is_archived}
           canUnarchive={order.is_archived}
         />

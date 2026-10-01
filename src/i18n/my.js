@@ -138,8 +138,6 @@ const my = {
   unarchive:          'အော်ဒါများထဲ ပြန်ထည့်မည်',
   points_earned:      'ပွိုင့် +{{points}} ရရှိသည်',
   download_invoice:   'ပြေစာ ဒေါင်းလုဒ်လုပ်မည်',
-  return_note_placeholder: 'အသေးစိတ် ပြောပြပါ (မဖြစ်မနေမဟုတ်)',
-  submit:             'တင်ပြမည်',
   order_not_found:    'အော်ဒါ မတွေ့ပါ',
   order_id:           'အော်ဒါ',
   cancel_order:       'အော်ဒါ ပယ်ဖျက်မည်',
@@ -152,19 +150,6 @@ const my = {
   confirmed:  'အတည်ပြုပြီး',
   delivered:  'ပေးပို့ပြီး',
   cancelled:  'ပယ်ဖျက်ပြီး',
-
-  // return
-  request_return:       'ပြန်လာပေးရန် တောင်းဆိုမည်',
-  return_request:       'ပြန်လာပေးရန် တောင်းဆိုချက်',
-  return_select_reason: 'အကြောင်းအရင်း ရွေးချယ်ပါ -',
-  return_reason:        'အကြောင်းအရင်း',
-  return_status:        'အခြေအနေ',
-  return_admin_note:    'စီမံခန့်ခွဲသူ မှတ်ချက်',
-  return_submitted:     'တောင်းဆိုချက် တင်ပြပြီးပါပြီ။ မကြာမီ ဆက်သွယ်ပါမည်။',
-  reason_damaged:       'ပစ္စည်း ပျက်စီး/ချိုတဲ့',
-  reason_wrong_item:    'မှားသောပစ္စည်း ရောက်သည်',
-  reason_changed_mind:  'စိတ်ပြောင်းသွားသည်',
-  reason_other:         'အခြား',
 
   // profile
   edit_profile:   'ပရိုဖိုင် ပြင်မည်',

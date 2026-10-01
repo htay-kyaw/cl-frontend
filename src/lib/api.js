@@ -101,7 +101,6 @@ export const orderApi = {
   cancel:        (id)       => post(`/orders/${id}/cancel`),
   archive:       (id)       => post(`/orders/${id}/archive`),
   unarchive:     (id)       => post(`/orders/${id}/unarchive`),
-  requestReturn: (id, data) => post(`/orders/${id}/return`, data),
 };
 
 // ── Uploads ───────────────────────────────────────────────────────────────────

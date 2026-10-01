@@ -4,8 +4,6 @@ import { revalidatePath } from 'next/cache';
 import { ApiError, orderApi } from '@/lib/api';
 import { getToken } from '@/lib/session';
 
-const RETURN_REASONS = ['damaged', 'wrong_item', 'changed_mind', 'other'];
-
 async function run(id, call) {
   if (!(await getToken())) return { ok: false, message: 'Please sign in first.' };
   const orderId = Number(id);
@@ -36,10 +34,4 @@ export async function archiveOrder(id) {
 
 export async function unarchiveOrder(id) {
   return run(id, orderApi.unarchive);
-}
-
-export async function requestReturn(id, reason, note) {
-  if (!RETURN_REASONS.includes(reason)) return { ok: false, message: 'Please choose a reason.' };
-  const cleanNote = typeof note === 'string' && note.trim() ? note.trim().slice(0, 500) : undefined;
-  return run(id, (orderId) => orderApi.requestReturn(orderId, { reason, note: cleanNote }));
 }
