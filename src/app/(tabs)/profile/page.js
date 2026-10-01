@@ -1,4 +1,5 @@
-import { IoGiftOutline, IoPersonCircleOutline } from 'react-icons/io5';
+import Link from 'next/link';
+import { IoChevronForward, IoGiftOutline, IoLocationOutline, IoPersonCircleOutline } from 'react-icons/io5';
 import PageHeader from '@/components/nav/PageHeader';
 import SignInPrompt from '@/components/SignInPrompt';
 import { getLocale, getT, getTheme } from '@/lib/preferences';
@@ -59,6 +60,13 @@ export default async function ProfilePage() {
               </div>
               <IoGiftOutline size={32} className="text-primary" />
             </section>
+
+            {/* Addresses */}
+            <Link href="/addresses" className="flex items-center gap-2.5 rounded-2xl border border-border bg-card p-4 hover:border-primary">
+              <IoLocationOutline size={20} className="text-primary" />
+              <span className="flex-1 font-medium">{t('my_addresses')}</span>
+              <IoChevronForward size={18} className="text-text-secondary" />
+            </Link>
           </>
         ) : (
           <SignInPrompt Icon={IoPersonCircleOutline} message={t('sign_in_profile')} next="/profile" />

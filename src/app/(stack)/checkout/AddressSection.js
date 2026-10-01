@@ -2,12 +2,11 @@
 
 import { IoAddCircleOutline, IoCheckmarkCircle, IoLocationOutline } from 'react-icons/io5';
 import { useT } from '@/components/Providers';
+import ZoneSelect, { zoneName } from '@/components/ZoneSelect';
 import { formatPrice } from '@/lib/links';
 
 const label = 'mb-2 text-[13px] font-semibold uppercase tracking-wide text-text-secondary';
 const input = 'w-full rounded-xl border border-border bg-card px-4 py-3 text-[15px] outline-none focus:border-primary';
-
-const zoneName = (z) => `${z.township}, ${z.city}`;
 
 // Saved addresses as selectable cards, plus "enter a different address"
 export default function AddressSection({ zones, addresses, value, onChange, zone }) {
@@ -64,21 +63,7 @@ export default function AddressSection({ zones, addresses, value, onChange, zone
       {manual && (
         <div className="flex flex-col gap-3">
           <div>
-            <label htmlFor="zone" className="sr-only">{t('select_zone')}</label>
-            <select
-              id="zone"
-              value={value.zoneId ?? ''}
-              onChange={e => onChange({ ...value, zoneId: Number(e.target.value) || null })}
-              className={`${input} appearance-none bg-[length:16px] bg-[right_1rem_center] bg-no-repeat ${value.zoneId ? '' : 'text-placeholder'}`}
-              style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 512 512%27%3E%3Cpath fill=%27none%27 stroke=%27%23999%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%2748%27 d=%27M112 184l144 144 144-144%27/%3E%3C/svg%3E")' }}
-            >
-              <option value="" disabled>{t('select_zone')}</option>
-              {zones.map(z => (
-                <option key={z.id} value={z.id}>
-                  {zoneName(z)} · {formatPrice(z.delivery_fee)} {t('mmk')}
-                </option>
-              ))}
-            </select>
+            <ZoneSelect zones={zones} value={value.zoneId} onChange={zoneId => onChange({ ...value, zoneId })} />
             {zone && (
               <p className="mt-1.5 text-xs text-text-secondary">
                 {t('delivery_fee')}: {formatPrice(zone.delivery_fee)} {t('mmk')}
