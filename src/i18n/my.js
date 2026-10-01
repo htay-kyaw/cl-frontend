@@ -36,6 +36,10 @@ const my = {
   banners:    'ကြော်ငြာ',
   categories: 'အမျိုးအစားများ',
   all:        'အားလုံး',
+  view_details: 'အသေးစိတ်ကြည့်မည်',
+  no_products:  'ကုန်ပစ္စည်း မတွေ့ပါ',
+  available:    'ရရှိနိုင်သည်',
+  stock_count:  'လက်ကျန်: {{count}}',
 
   // products
   search_products:    'ကုန်ပစ္စည်းရှာမည်...',

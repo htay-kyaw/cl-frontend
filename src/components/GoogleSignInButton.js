@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { GoogleLogin } from '@react-oauth/google';
+import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { signInWithGoogle } from '@/app/actions/auth';
 import { useLocale, useT } from './Providers';
 
@@ -28,19 +28,22 @@ export default function GoogleSignInButton({ redirectTo = '/' }) {
     });
   };
 
+  // provider lives here so Google's script only loads on the sign-in page
   return (
-    <div className="flex flex-col items-center gap-3">
-      <div className={pending ? 'pointer-events-none opacity-50' : ''}>
-        <GoogleLogin
-          onSuccess={onSuccess}
-          onError={() => setError(t('sign_in_failed'))}
-          shape="pill"
-          size="large"
-          width="320"
-          locale={locale}
-        />
+    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
+      <div className="flex flex-col items-center gap-3">
+        <div className={pending ? 'pointer-events-none opacity-50' : ''}>
+          <GoogleLogin
+            onSuccess={onSuccess}
+            onError={() => setError(t('sign_in_failed'))}
+            shape="pill"
+            size="large"
+            width="320"
+            locale={locale}
+          />
+        </div>
+        {error && <p className="text-sm text-danger">{error}</p>}
       </div>
-      {error && <p className="text-sm text-danger">{error}</p>}
-    </div>
+    </GoogleOAuthProvider>
   );
 }

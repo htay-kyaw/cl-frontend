@@ -36,6 +36,10 @@ const en = {
   banners:    'Banners',
   categories: 'Categories',
   all:        'All',
+  view_details: 'View Details',
+  no_products:  'No products found',
+  available:    'Available',
+  stock_count:  'Stock: {{count}}',
 
   // products
   search_products:    'Search products...',

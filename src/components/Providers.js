@@ -1,7 +1,6 @@
 'use client';
 
 import { createContext, useCallback, useContext } from 'react';
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import { getDictionary, translate } from '@/i18n';
 
 const LocaleContext = createContext('my');
@@ -18,9 +17,5 @@ export function useLocale() {
 }
 
 export default function Providers({ locale, children }) {
-  return (
-    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
-      <LocaleContext.Provider value={locale}>{children}</LocaleContext.Provider>
-    </GoogleOAuthProvider>
-  );
+  return <LocaleContext.Provider value={locale}>{children}</LocaleContext.Provider>;
 }

@@ -67,3 +67,18 @@ body {
 input::placeholder {
   color: var(--placeholder);
 }
+
+/* Announcement ticker: the content is doubled, so shifting by half loops seamlessly */
+@keyframes ticker {
+  to { transform: translateX(-50%); }
+}
+
+.ticker {
+  animation: ticker linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker {
+    animation: none;
+  }
+}
