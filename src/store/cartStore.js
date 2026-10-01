@@ -8,6 +8,9 @@ import { persist } from 'zustand/middleware';
 // A cart line is identified by product id + variant id (null when the product has no variants).
 const sameLine = (item, productId, variantId) => item.id === productId && (item.variantId ?? null) === variantId;
 
+// matches the keys returned by the syncCartLines server action
+export const lineKey = (item) => `${item.id}-${item.variantId ?? 'x'}`;
+
 const useCartStore = create(
   persist(
     (set, get) => ({
@@ -36,6 +39,32 @@ const useCartStore = create(
       },
 
       clearCart: () => set({ items: [] }),
+
+      // Apply fresh product data from syncCartLines(); returns what changed so the UI can say so
+      applySync: (updates) => {
+        const changes = { priceChanged: [], reduced: [], removed: [] };
+        const items = [];
+
+        for (const item of get().items) {
+          const update = updates[lineKey(item)];
+          if (!update) { items.push(item); continue; } // not checked (e.g. over the limit)
+
+          if (update.status === 'gone' || !update.is_in_stock || update.stock <= 0) {
+            changes.removed.push(item.name);
+            continue;
+          }
+          if (update.sell_price !== item.sell_price) changes.priceChanged.push(update.name);
+
+          const quantity = Math.min(item.quantity, update.stock);
+          if (quantity < item.quantity) changes.reduced.push(update.name);
+
+          const { name, image, sell_price, stock, is_in_stock } = update;
+          items.push({ ...item, name, image, sell_price, stock, is_in_stock, quantity });
+        }
+
+        set({ items });
+        return changes;
+      },
     }),
     { name: 'eichit-cart', skipHydration: true }
   )

@@ -62,6 +62,11 @@ const en = {
   total:              'Total',
   checkout:           'Checkout',
   remove:             'Remove',
+  browse_products:    'Browse products',
+  delivery_fee_at_checkout: 'Delivery fee is added at checkout.',
+  cart_removed:       'No longer available and removed: {{names}}',
+  cart_reduced:       'Quantity reduced to available stock: {{names}}',
+  cart_price_changed: 'Price updated: {{names}}',
 
   // checkout
   select_zone:        'Select Delivery Zone',

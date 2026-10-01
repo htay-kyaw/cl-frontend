@@ -62,6 +62,11 @@ const my = {
   total:              'စုစုပေါင်း',
   checkout:           'ဝယ်ယူမည်',
   remove:             'ဖယ်ရှားမည်',
+  browse_products:    'ကုန်ပစ္စည်းများ ကြည့်မည်',
+  delivery_fee_at_checkout: 'ပို့ဆောင်ခကို ငွေချေရာတွင် ထည့်တွက်ပါမည်။',
+  cart_removed:       'မရရှိနိုင်တော့သဖြင့် ဖယ်ရှားလိုက်သည်: {{names}}',
+  cart_reduced:       'လက်ကျန်အတိုင်း အရေအတွက် လျှော့လိုက်သည်: {{names}}',
+  cart_price_changed: 'ဈေးနှုန်း ပြောင်းလဲသွားသည်: {{names}}',
 
   // checkout
   select_zone:        'ဒေသရွေးချယ်ပါ',
