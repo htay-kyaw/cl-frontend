@@ -2,13 +2,13 @@
 
 import { useActionState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { savePhone } from '@/app/actions/auth';
+import { addPhone } from '@/app/actions/profile';
 import { useT } from '@/components/Providers';
 
 export default function PhoneForm({ next }) {
   const t      = useT();
   const router = useRouter();
-  const [state, action, pending] = useActionState(savePhone, null);
+  const [state, action, pending] = useActionState(addPhone, null);
 
   useEffect(() => {
     if (state?.ok) router.replace(next);

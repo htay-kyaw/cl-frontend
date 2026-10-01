@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from 'react';
 import { IoPencilOutline } from 'react-icons/io5';
-import { saveName } from '@/app/actions/auth';
+import { saveName } from '@/app/actions/profile';
 import { useT } from '@/components/Providers';
 
 export default function NameEditor({ name }) {

@@ -5,6 +5,7 @@ import { getLocale, getT, getTheme } from '@/lib/preferences';
 import { getCurrentUser } from '@/lib/session';
 import LogoutButton from './LogoutButton';
 import NameEditor from './NameEditor';
+import PhoneList from './PhoneList';
 import SettingsCard from './SettingsCard';
 import SocialLinks from './SocialLinks';
 
@@ -42,9 +43,12 @@ export default async function ProfilePage() {
 
               <p className={`${cardLabel} mt-3`}>Email</p>
               <p className="font-medium">{user.email}</p>
+            </section>
 
-              <p className={`${cardLabel} mt-3`}>Phone</p>
-              <p className="font-medium">{user.phone ?? '—'}</p>
+            {/* Phone numbers */}
+            <section className="rounded-2xl border border-border bg-card p-4">
+              <p className={cardLabel}>{t('phone_numbers')}</p>
+              <PhoneList phones={user.phones ?? []} />
             </section>
 
             {/* Points */}

@@ -70,7 +70,15 @@ export const bankApi     = { list:  () => get('/bank-accounts') };
 // ── Profile ───────────────────────────────────────────────────────────────────
 export const profileApi = {
   get:    ()     => get('/profile'),
-  update: (data) => put('/profile', data), // { name?, phone? }
+  update: (name) => put('/profile', { name }),
+};
+
+// ── Phone numbers (one is primary) ────────────────────────────────────────────
+export const phoneApi = {
+  list:        ()      => get('/phones'),
+  add:         (phone) => post('/phones', { phone }),
+  makePrimary: (id)    => post(`/phones/${id}/primary`),
+  remove:      (id)    => del(`/phones/${id}`),
 };
 
 // ── Loyalty ───────────────────────────────────────────────────────────────────
