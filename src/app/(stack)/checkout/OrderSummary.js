@@ -3,6 +3,8 @@
 import { useT } from '@/components/Providers';
 import { formatPrice } from '@/lib/links';
 import { lineKey } from '@/store/cartStore';
+import PointsHint from '@/components/PointsHint';
+import { pointsFor } from '@/lib/points';
 
 // Items + totals + Place Order; pinned on mobile, sticky card on desktop
 export default function OrderSummary({ items, subtotal, discount, promotion, fee, total, hint, error, disabled, placing, onPlace }) {
@@ -53,6 +55,7 @@ export default function OrderSummary({ items, subtotal, discount, promotion, fee
           <span className="font-semibold">{t('total')}</span>
           <span className="text-lg font-bold text-primary">{mmk(total)}</span>
         </div>
+        <PointsHint points={pointsFor(subtotal, discount)} t={t} />
       </div>
     );
   }

@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { IoAdd, IoCartOutline, IoInformationCircleOutline, IoRemove, IoTrashOutline } from 'react-icons/io5';
 import { syncCartLines } from '@/app/actions/cart';
 import EmptyState from '@/components/EmptyState';
+import PointsHint from '@/components/PointsHint';
+import { pointsFor } from '@/lib/points';
 import { useT } from '@/components/Providers';
 import Skeleton from '@/components/Skeleton';
 import { formatPrice } from '@/lib/links';
@@ -126,7 +128,10 @@ export default function CartView({ checkoutHref }) {
           <span>{t('total')}</span>
           <span className="text-lg font-bold text-primary">{formatPrice(total)} {t('mmk')}</span>
         </div>
-        <p className="mb-3 text-xs text-text-secondary">{t('delivery_fee_at_checkout')}</p>
+        <p className="text-xs text-text-secondary">{t('delivery_fee_at_checkout')}</p>
+        <div className="mb-3 mt-1">
+          <PointsHint points={pointsFor(total)} t={t} />
+        </div>
         <Link
           href={checkoutHref}
           aria-disabled={syncing}
