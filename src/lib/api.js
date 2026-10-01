@@ -23,9 +23,12 @@ async function request(method, path, { body, query } = {}) {
   const token = await getToken();
   if (token) reqHeaders.Authorization = `Bearer ${token}`;
 
-  // pass the visitor's IP so Laravel rate-limits per visitor (see TRUSTED_PROXIES)
-  const forwardedFor = (await headers()).get('x-forwarded-for');
-  if (forwardedFor) reqHeaders['X-Forwarded-For'] = forwardedFor;
+  // Pass the shopper's IP so Laravel rate-limits per shopper. Locally Laravel trusts this server by
+  // IP (TRUSTED_PROXIES); in production (Vercel, changing IPs) by the shared API_PROXY_SECRET.
+  const incoming = await headers();
+  const visitorIp = incoming.get('x-real-ip') ?? incoming.get('x-forwarded-for')?.split(',')[0].trim();
+  if (visitorIp) reqHeaders['X-Forwarded-For'] = visitorIp;
+  if (process.env.API_PROXY_SECRET) reqHeaders['X-Proxy-Secret'] = process.env.API_PROXY_SECRET;
 
   let payload;
   if (body instanceof FormData) {
