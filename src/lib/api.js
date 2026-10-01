@@ -94,8 +94,8 @@ export const addressApi = {
 
 // ── Orders ────────────────────────────────────────────────────────────────────
 export const orderApi = {
-  list:          ()         => get('/orders'),
-  archived:      ()         => get('/orders/archived'),
+  list:          (params)   => get('/orders', params),          // { group: 'active' | 'history', page }
+  archived:      (params)   => get('/orders/archived', params), // { page }
   get:           (id)       => get(`/orders/${id}`),
   place:         (data)     => post('/orders', data),
   cancel:        (id)       => post(`/orders/${id}/cancel`),
