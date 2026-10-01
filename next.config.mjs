@@ -9,6 +9,13 @@ const nextConfig = {
     // product, banner and category images are uploaded to Cloudinary by the backend
     remotePatterns: [new URL("https://res.cloudinary.com/**")],
   },
+
+  experimental: {
+    serverActions: {
+      // payment screenshots go through a Server Action (compressed client-side; 5 MB cap in the action)
+      bodySizeLimit: "6mb",
+    },
+  },
 };
 
 export default nextConfig;
