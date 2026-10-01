@@ -25,11 +25,14 @@ export function parseProductQuery(params) {
     category: Number(get('category')) || null,
     sort:     SORTS.includes(sort) ? sort : 'newest',
     filters,
+    // ?page=N lets search engines (and shared links) reach products beyond the first screen
+    page:     Math.min(Math.max(Number.parseInt(get('page'), 10) || 1, 1), 500),
   };
 }
 
-// normalized query → URL (empty values dropped; page resets whenever this is rebuilt)
-export function productQueryHref(query) {
+// normalized query → URL (empty values dropped). The page is only kept when passed explicitly,
+// so changing search / category / sort / filters always starts again from page 1.
+export function productQueryHref(query, page = 1) {
   const p = new URLSearchParams();
   if (query.q) p.set('q', query.q);
   if (query.category) p.set('category', String(query.category));
@@ -37,6 +40,7 @@ export function productQueryHref(query) {
   for (const [name, value] of Object.entries(query.filters ?? {})) {
     if (value) p.set(FILTER_PREFIX + name, value);
   }
+  if (page > 1) p.set('page', String(page));
   const s = p.toString();
   return s ? `/products?${s}` : '/products';
 }

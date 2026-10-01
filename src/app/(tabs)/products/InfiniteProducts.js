@@ -1,17 +1,19 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { loadMoreProducts } from '@/app/actions/catalog';
 import ProductCard from '@/components/products/ProductCard';
 import { useT } from '@/components/Providers';
 
-// Appends further pages to the server-rendered first page as the shopper scrolls,
-// like the mobile app's onEndReached. A button is the fallback.
-export default function InfiniteProducts({ search, lastPage, seenIds }) {
+// Appends further pages to the server-rendered page as the shopper scrolls, like the mobile
+// app's onEndReached. "Load more" is a real link to ?page=N+1 so search engines can crawl
+// every page; for people it loads inline instead of navigating.
+export default function InfiniteProducts({ search, startPage = 1, lastPage, seenIds }) {
   const t = useT();
   const sentinel = useRef(null);
   const [items, setItems] = useState([]);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(startPage);
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
   const [total, setTotal] = useState(lastPage);
@@ -45,6 +47,12 @@ export default function InfiniteProducts({ search, lastPage, seenIds }) {
     return () => observer.disconnect();
   }, [loadNext, failed]);
 
+  const nextHref = () => {
+    const params = new URLSearchParams(search);
+    params.set('page', String(page + 1));
+    return `/products?${params}`;
+  };
+
   return (
     <>
       {items.map(p => <ProductCard key={p.id} product={p} t={t} />)}
@@ -53,9 +61,15 @@ export default function InfiniteProducts({ search, lastPage, seenIds }) {
           {loading ? (
             <span className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" aria-label={t('loading')} />
           ) : (
-            <button type="button" onClick={loadNext} className="rounded-full border border-primary px-6 py-2 text-sm font-semibold text-primary">
+            <Link
+              href={nextHref()}
+              rel="next"
+              scroll={false}
+              onClick={e => { e.preventDefault(); loadNext(); }}
+              className="rounded-full border border-primary px-6 py-2 text-sm font-semibold text-primary"
+            >
               {failed ? t('retry') : t('load_more')}
-            </button>
+            </Link>
           )}
         </div>
       )}

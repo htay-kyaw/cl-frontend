@@ -54,6 +54,8 @@ const my = {
   show_results:       'ရလဒ်များ ပြမည်',
   show_results_count: 'ရလဒ်များ ပြမည် ({{count}} ခု ရွေးထား)',
   load_more:          'ထပ်ကြည့်မည်',
+  see_all_products:   'ကုန်ပစ္စည်း {{count}} ခုလုံး ကြည့်မည်',
+  back_to_first_page: 'ပထမစာမျက်နှာသို့',
   products_count:     'ကုန်ပစ္စည်း {{count}} ခု',
   out_of_stock:       'ကုန်ဆုံးပြီ',
   add_to_cart:        'ဈေးခြင်းထဲထည့်မည်',

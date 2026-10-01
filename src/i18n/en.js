@@ -54,6 +54,8 @@ const en = {
   show_results:       'Show results',
   show_results_count: 'Show results ({{count}} selected)',
   load_more:          'Load more',
+  see_all_products:   'See all {{count}} products',
+  back_to_first_page: 'Back to the first page',
   products_count:     '{{count}} products',
   out_of_stock:       'Out of Stock',
   add_to_cart:        'Add to Cart',

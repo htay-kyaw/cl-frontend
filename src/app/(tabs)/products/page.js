@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
-import { IoClose, IoSearchOutline } from 'react-icons/io5';
+import { IoChevronBack, IoClose, IoSearchOutline } from 'react-icons/io5';
 import CategoryChips from '@/components/home/CategoryChips';
 import EmptyState from '@/components/EmptyState';
 import PageHeader from '@/components/nav/PageHeader';
@@ -17,8 +17,11 @@ import SearchBar from './SearchBar';
 
 export async function generateMetadata({ searchParams }) {
   const t = await getT();
-  const { q } = parseProductQuery(await searchParams);
-  return { title: q ? `${t('products')}: ${q}` : t('products') };
+  const query = parseProductQuery(await searchParams);
+  return {
+    title: query.q ? `${t('products')}: ${query.q}` : t('products'),
+    alternates: { canonical: productQueryHref(query, query.page) },
+  };
 }
 
 // category chips + filter sheet (filter values depend on the category)
@@ -59,7 +62,8 @@ function ControlsSkeleton() {
 }
 
 async function Results({ query }) {
-  const [t, { items, total, last_page }] = await Promise.all([getT(), catalogApi.products(toApiParams(query, 1))]);
+  const [t, { items, total, last_page }] = await Promise.all([getT(), catalogApi.products(toApiParams(query, query.page))]);
+  const search = productQueryHref(query).split('?')[1] ?? '';
 
   // removable chips for the filters currently applied
   const applied = [
@@ -82,9 +86,18 @@ async function Results({ query }) {
         ))}
       </div>
 
+      {/* landed on a later page (e.g. from Google): offer the start of the list */}
+      {query.page > 1 && (
+        <div className="flex justify-center px-3 pb-3 md:px-0">
+          <Link href={productQueryHref(query)} className="flex items-center gap-1 text-sm font-semibold text-primary">
+            <IoChevronBack /> {t('back_to_first_page')}
+          </Link>
+        </div>
+      )}
+
       {items.length === 0 ? (
         <EmptyState Icon={IoSearchOutline} title={t('no_products')}>
-          {(query.q || applied.length > 0 || query.category) && (
+          {(query.q || applied.length > 0 || query.category || query.page > 1) && (
             <Link href="/products" className="mt-2 rounded-full border border-primary px-6 py-2 text-sm font-semibold text-primary">
               {t('clear_all')}
             </Link>
@@ -94,7 +107,8 @@ async function Results({ query }) {
         <div className={gridClass}>
           {items.map((p, i) => <ProductCard key={p.id} product={p} t={t} priority={i < 4} />)}
           <InfiniteProducts
-            search={productQueryHref(query).split('?')[1] ?? ''}
+            search={search}
+            startPage={query.page}
             lastPage={last_page}
             seenIds={items.map(p => p.id)}
           />
@@ -107,7 +121,7 @@ async function Results({ query }) {
 export default async function ProductsPage({ searchParams }) {
   const [t, params] = await Promise.all([getT(), searchParams]);
   const query = parseProductQuery(params);
-  const key = productQueryHref(query);
+  const key = productQueryHref(query, query.page);
 
   return (
     <>

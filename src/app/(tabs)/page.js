@@ -1,4 +1,6 @@
 import { Suspense } from 'react';
+import Link from 'next/link';
+import { IoChevronForward } from 'react-icons/io5';
 import AnnouncementTicker from '@/components/home/AnnouncementTicker';
 import BannerCarousel from '@/components/home/BannerCarousel';
 import CategoryChips from '@/components/home/CategoryChips';
@@ -37,12 +39,27 @@ function ShowcaseSkeleton() {
 }
 
 async function Products({ categoryId }) {
-  const [t, { items }] = await Promise.all([
+  const [t, { items, total }] = await Promise.all([
     getT(),
     catalogApi.products({ category_id: categoryId, per_page: HOME_PRODUCTS }),
   ]);
 
-  return <ProductGrid products={items} t={t} />;
+  return (
+    <>
+      <ProductGrid products={items} t={t} />
+      {/* Home only shows the newest few; the full catalog (same category) lives on Products */}
+      {total > 0 && (
+        <div className="mt-5 flex justify-center px-3 md:px-0">
+          <Link
+            href={categoryId ? `/products?category=${categoryId}` : '/products'}
+            className="flex items-center gap-1.5 rounded-full border border-primary px-6 py-2.5 text-sm font-semibold text-primary"
+          >
+            {t('see_all_products', { count: total })} <IoChevronForward />
+          </Link>
+        </div>
+      )}
+    </>
+  );
 }
 
 export default async function HomePage({ searchParams }) {
