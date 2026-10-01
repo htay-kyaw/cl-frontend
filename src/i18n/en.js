@@ -43,6 +43,18 @@ const en = {
 
   // products
   search_products:    'Search products...',
+  clear:              'Clear',
+  clear_all:          'Clear all',
+  filters:            'Filters',
+  sort_by:            'Sort by',
+  sort_newest:        'Newest',
+  sort_price_asc:     'Price: low to high',
+  sort_price_desc:    'Price: high to low',
+  no_filters:         'No filters for this category',
+  show_results:       'Show results',
+  show_results_count: 'Show results ({{count}} selected)',
+  load_more:          'Load more',
+  products_count:     '{{count}} products',
   out_of_stock:       'Out of Stock',
   add_to_cart:        'Add to Cart',
   added_to_cart:      'Added to cart',

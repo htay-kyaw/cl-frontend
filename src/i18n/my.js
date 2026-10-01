@@ -43,6 +43,18 @@ const my = {
 
   // products
   search_products:    'ကုန်ပစ္စည်းရှာမည်...',
+  clear:              'ရှင်းမည်',
+  clear_all:          'အားလုံးရှင်းမည်',
+  filters:            'စစ်ထုတ်ရန်',
+  sort_by:            'စီရန်',
+  sort_newest:        'အသစ်ဆုံး',
+  sort_price_asc:     'ဈေးနှုန်း: နည်းမှ များ',
+  sort_price_desc:    'ဈေးနှုန်း: များမှ နည်း',
+  no_filters:         'ဤအမျိုးအစားအတွက် စစ်ထုတ်စရာ မရှိပါ',
+  show_results:       'ရလဒ်များ ပြမည်',
+  show_results_count: 'ရလဒ်များ ပြမည် ({{count}} ခု ရွေးထား)',
+  load_more:          'ထပ်ကြည့်မည်',
+  products_count:     'ကုန်ပစ္စည်း {{count}} ခု',
   out_of_stock:       'ကုန်ဆုံးပြီ',
   add_to_cart:        'ဈေးခြင်းထဲထည့်မည်',
   added_to_cart:      'ဈေးခြင်းထဲထည့်ပြီ',
