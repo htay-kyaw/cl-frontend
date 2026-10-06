@@ -1,9 +1,9 @@
 import { FaFacebook, FaTelegramPlane, FaTiktok } from 'react-icons/fa';
 
-// Same links as the mobile app's profile screen
+// Shop's social accounts (Telegram opens the shop's account @Eichittt)
 const SOCIAL = [
   { Icon: FaFacebook,      color: '#1877F2', label: 'Facebook', url: 'https://www.facebook.com/profile.php?id=100063777256523' },
-  { Icon: FaTelegramPlane, color: '#26A5E4', label: 'Telegram', url: 'https://t.me/eichit' },
+  { Icon: FaTelegramPlane, color: '#26A5E4', label: 'Telegram', url: 'https://t.me/Eichittt' },
   { Icon: FaTiktok,        color: '#010101', label: 'TikTok',   url: 'https://www.tiktok.com/@eichitdistribution' },
 ];
 
