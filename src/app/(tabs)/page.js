@@ -47,8 +47,8 @@ async function Products({ categoryId }) {
   return (
     <>
       <ProductGrid products={items} t={t} />
-      {/* Home only shows the newest few; the full catalog (same category) lives on Products */}
-      {total > 0 && (
+      {/* Home only shows the newest few; link to the full list (same category) only when there are more */}
+      {total > items.length && (
         <div className="mt-5 flex justify-center px-3 md:px-0">
           <Link
             href={categoryId ? `/products?category=${categoryId}` : '/products'}
