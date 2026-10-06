@@ -63,7 +63,9 @@ export default function ProductPurchase({ product }) {
     <>
       <div className="mb-4 flex items-center justify-between gap-3">
         <p className="text-2xl font-bold text-primary">
-          {hasVariants && !selected ? t('from_price', { price: formatPrice(price) }) : formatPrice(price)} {t('mmk')}
+          {hasVariants && !selected
+            ? t('from_price', { price: formatPrice(price) })
+            : `${formatPrice(price)} ${t('mmk')}`}
         </p>
         {(!hasVariants || selected) && (
           <span className={`rounded-full px-3 py-1.5 text-xs font-bold ${inStock ? 'bg-success/15 text-success' : 'bg-danger/15 text-danger'}`}>

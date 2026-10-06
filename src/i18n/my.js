@@ -62,7 +62,7 @@ const my = {
   added_to_cart:      'ဈေးခြင်းထဲထည့်ပြီ',
   select_option_title:   '{{option}} ကို ရွေးချယ်ပါ',
   select_option_message: 'ဈေးခြင်းထဲ မထည့်မီ {{option}} ကို ရွေးချယ်ပါ။',
-  from_price:         '{{price}} မှစ၍',
+  from_price:         '{{price}} ကျပ်မှစ၍', // includes the currency: Burmese puts "မှစ၍" after it
   specifications:     'အသေးစိတ်အချက်အလက်',
   option:             'ရွေးချယ်စရာ',
   close:              'ပိတ်မည်',

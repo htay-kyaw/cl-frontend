@@ -10,8 +10,8 @@ export default function ProductCard({ product, t, priority = false }) {
   const prices = hasVariants ? product.variants.map(v => v.price) : [product.sell_price];
   const lowest = Math.min(...prices);
   const priceLabel = new Set(prices).size > 1
-    ? t('from_price', { price: formatPrice(lowest) })
-    : formatPrice(lowest);
+    ? t('from_price', { price: formatPrice(lowest) }) // "10,000 ကျပ်မှစ၍" / "From 10,000 MMK"
+    : `${formatPrice(lowest)} ${t('mmk')}`;
 
   // a summed total across powers would be misleading — the specific power a shopper wants may be sold out
   const stockLabel = !product.is_in_stock
@@ -41,7 +41,7 @@ export default function ProductCard({ product, t, priority = false }) {
         <p className="line-clamp-2 text-[13px] font-medium">{product.name}</p>
         <div className="mt-auto flex items-center justify-between gap-1 pt-1">
           <span className="text-sm font-bold text-primary">
-            {priceLabel} {t('mmk')}
+            {priceLabel}
           </span>
           <span className={`text-[11px] font-semibold ${product.is_in_stock ? 'text-text-secondary' : 'text-danger'}`}>
             {stockLabel}

@@ -62,7 +62,7 @@ const en = {
   added_to_cart:      'Added to cart',
   select_option_title:   'Select {{option}}',
   select_option_message: 'Please select a {{option}} before adding to cart.',
-  from_price:         'From {{price}}',
+  from_price:         'From {{price}} MMK', // includes the currency (word order differs by language)
   specifications:     'Specifications',
   option:             'Option',
   close:              'Close',
