@@ -1,5 +1,7 @@
 import { Geist, Geist_Mono, Noto_Sans_Myanmar } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
+import CartImport from "@/components/CartImport";
 import Providers from "@/components/Providers";
 import { getLocale, getTheme } from "@/lib/preferences";
 
@@ -45,7 +47,13 @@ export default async function RootLayout({ children }) {
       className={`${geistSans.variable} ${geistMono.variable} ${notoMyanmar.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
-        <Providers locale={locale}>{children}</Providers>
+        <Providers locale={locale}>
+          {children}
+          {/* restores a cart carried over from an in-app browser (?cart=…) on whatever page it lands */}
+          <Suspense fallback={null}>
+            <CartImport />
+          </Suspense>
+        </Providers>
       </body>
     </html>
   );

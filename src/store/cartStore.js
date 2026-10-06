@@ -40,6 +40,18 @@ const useCartStore = create(
 
       clearCart: () => set({ items: [] }),
 
+      // Lines carried over from another browser (importCartLines); a line already here
+      // keeps the larger quantity, so importing the same link twice changes nothing
+      mergeItems: (lines) => {
+        const items = [...get().items];
+        for (const line of lines) {
+          const index = items.findIndex(i => sameLine(i, line.id, line.variantId ?? null));
+          if (index === -1) items.push(line);
+          else items[index] = { ...items[index], ...line, quantity: Math.max(items[index].quantity, line.quantity) };
+        }
+        set({ items });
+      },
+
       // Apply fresh product data from syncCartLines(); returns what changed so the UI can say so
       applySync: (updates) => {
         const changes = { priceChanged: [], reduced: [], removed: [] };

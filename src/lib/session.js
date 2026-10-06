@@ -10,15 +10,22 @@ export async function getToken() {
   return (await cookies()).get(TOKEN_COOKIE)?.value ?? null;
 }
 
+const tokenCookieOptions = () => ({
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax',
+  path: '/',
+  maxAge: MAX_AGE,
+});
+
 // Only callable from Server Actions / Route Handlers
 export async function setToken(token) {
-  (await cookies()).set(TOKEN_COOKIE, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/',
-    maxAge: MAX_AGE,
-  });
+  (await cookies()).set(TOKEN_COOKIE, token, tokenCookieOptions());
+}
+
+// For a Route Handler that returns its own response (e.g. a redirect)
+export function setTokenOn(response, token) {
+  response.cookies.set(TOKEN_COOKIE, token, tokenCookieOptions());
 }
 
 export async function clearToken() {
