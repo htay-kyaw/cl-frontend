@@ -5,6 +5,7 @@ import { IoCheckmarkCircle, IoChevronDown, IoClose } from 'react-icons/io5';
 import QuantityControl from '@/components/products/QuantityControl';
 import { useT } from '@/components/Providers';
 import { formatPrice } from '@/lib/links';
+import { usePhotoFocus } from './PhotoFocus';
 
 // { Color: 'Brown', Power: '-2.00' } for one option row
 function optionMap(variant, types) {
@@ -21,6 +22,7 @@ export default function ProductPurchase({ product }) {
   const [selection, setSelection] = useState({}); // { Color: 'Brown', Power: '-2.00' }
   const [openType, setOpenType] = useState(null); // which picker the sheet shows
   const [missing, setMissing] = useState(null);   // type the shopper must still choose
+  const { showPhoto } = usePhotoFocus();
 
   const variants    = useMemo(() => product.variants ?? [], [product.variants]);
   const hasVariants = variants.length > 0;
@@ -66,6 +68,10 @@ export default function ProductPurchase({ product }) {
     setSelection(next);
     setMissing(null);
     dialogRef.current?.close();
+
+    // this choice has its own photo (e.g. the grey lens): show it
+    const photo = product.option_images?.find(o => o.type === type && o.value === value);
+    if (photo) showPhoto(photo.image);
   };
 
   // price: the chosen option's, otherwise the lowest among what still matches

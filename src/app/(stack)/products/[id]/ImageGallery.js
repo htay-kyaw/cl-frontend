@@ -1,19 +1,27 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
+import { usePhotoFocus } from './PhotoFocus';
 
 // Swipeable product images with dots; thumbnails on desktop
 export default function ImageGallery({ images, alt }) {
   const trackRef = useRef(null);
   const [index, setIndex] = useState(0);
-
-  if (images.length === 0) return <div className="aspect-square w-full bg-surface md:rounded-2xl" />;
+  const { focus } = usePhotoFocus();
 
   const goTo = (i) => {
     const track = trackRef.current;
     if (track) track.scrollTo({ left: i * track.clientWidth, behavior: 'smooth' });
   };
+
+  // an option was picked that has its own photo (e.g. Color: Grey): slide to it
+  useEffect(() => {
+    const i = focus ? images.indexOf(focus.src) : -1;
+    if (i >= 0) goTo(i);
+  }, [focus, images]);
+
+  if (images.length === 0) return <div className="aspect-square w-full bg-surface md:rounded-2xl" />;
 
   const onScroll = () => {
     const track = trackRef.current;
