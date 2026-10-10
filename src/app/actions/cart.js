@@ -66,13 +66,16 @@ export async function importCartLines(encoded) {
     const source = variant ?? product;
     if (!source.is_in_stock || source.stock <= 0) return [];
 
-    // same label the product page puts on the line
+    // same label the product page puts on the line: "Color: Grey · Power: -2.00"
     const optionName = variant && (variant.attribute_name ?? variants.find(v => v.attribute_name)?.attribute_name ?? t('option'));
+    const variantLabel = variant && (variant.options?.length
+      ? variant.options.map(o => `${o.type}: ${o.value}`).join(' · ')
+      : `${optionName}: ${variant.value}`);
 
     return [{
       id:          product.id,
       variantId:   variant?.id ?? null,
-      ...(variant && { variantLabel: `${optionName}: ${variant.value}` }),
+      ...(variant && { variantLabel }),
       name:        product.name,
       image:       product.image,
       sell_price:  variant ? variant.price : product.sell_price,

@@ -1,34 +1,87 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { IoCheckmarkCircle, IoChevronDown, IoClose } from 'react-icons/io5';
 import QuantityControl from '@/components/products/QuantityControl';
 import { useT } from '@/components/Providers';
 import { formatPrice } from '@/lib/links';
 
-// Price, stock, variant picker and the pinned Add to Cart bar.
-// Variant products (e.g. lens powers) must have a variant chosen before adding to cart.
+// { Color: 'Brown', Power: '-2.00' } for one option row
+function optionMap(variant, types) {
+  if (variant.options?.length) return Object.fromEntries(variant.options.map(o => [o.type, o.value]));
+  return { [types[0]]: variant.value }; // older API: one type
+}
+
+// Price, stock, option pickers and the pinned Add to Cart bar.
+// A product can have up to 3 option types (e.g. Color, Size, Power) — one picker each;
+// every combination is its own option row with its own stock and price.
 export default function ProductPurchase({ product }) {
   const t = useT();
   const dialogRef = useRef(null);
-  const [selected, setSelected] = useState(null);
-  const [hint, setHint] = useState(false);
+  const [selection, setSelection] = useState({}); // { Color: 'Brown', Power: '-2.00' }
+  const [openType, setOpenType] = useState(null); // which picker the sheet shows
+  const [missing, setMissing] = useState(null);   // type the shopper must still choose
 
-  const variants    = product.variants ?? [];
+  const variants    = useMemo(() => product.variants ?? [], [product.variants]);
   const hasVariants = variants.length > 0;
-  // some variants have no attribute name — label by the first one that does
-  const optionName  = variants.find(v => v.attribute_name)?.attribute_name ?? t('option');
+  const types = useMemo(() => {
+    if (product.option_types?.length) return product.option_types;
+    // older API: one type, named by the first option that has a name
+    return hasVariants ? [variants.find(v => v.attribute_name)?.attribute_name ?? t('option')] : [];
+  }, [product.option_types, hasVariants, variants, t]);
 
-  const price   = selected ? selected.price : hasVariants ? Math.min(...variants.map(v => v.price)) : product.sell_price;
+  const rows = useMemo(() => variants.map(v => ({ variant: v, opts: optionMap(v, types) })), [variants, types]);
+
+  // rows matching the current choices, optionally ignoring one type (to list that type's choices)
+  const matching = (sel, except = null) =>
+    rows.filter(({ opts }) => types.every(type => type === except || !sel[type] || opts[type] === sel[type]));
+
+  const complete = types.length > 0 && types.every(type => selection[type]);
+  const selected = complete ? matching(selection)[0]?.variant ?? null : null;
+
+  // each type's values in the order the shop listed them
+  const valuesOf = (type) => [...new Set(rows.map(({ opts }) => opts[type]).filter(Boolean))];
+
+  // choices follow the type order (Color → Size → Power): earlier choices limit the later ones
+  const before = (type) => Object.fromEntries(types.slice(0, types.indexOf(type)).map(tp => [tp, selection[tp]]));
+
+  // can this value be bought together with the earlier choices?
+  const available = (type, value) =>
+    matching({ ...before(type), [type]: value }).some(({ variant }) => variant.is_in_stock);
+
+  // a value that would complete the selection: show that option's price and stock in the sheet
+  const outcome = (type, value) => {
+    const next = { ...selection, [type]: value };
+    return types.every(tp => next[tp]) ? matching(next)[0]?.variant ?? null : null;
+  };
+
+  const choose = (type, value) => {
+    if (!available(type, value)) return;
+    const next = { ...selection, [type]: value };
+    // clear later choices that can't be bought with this one (e.g. a power sold out in Grey)
+    for (const later of types.slice(types.indexOf(type) + 1)) {
+      const upTo = Object.fromEntries(types.slice(0, types.indexOf(later) + 1).map(tp => [tp, next[tp]]));
+      if (next[later] && !matching(upTo).some(({ variant }) => variant.is_in_stock)) delete next[later];
+    }
+    setSelection(next);
+    setMissing(null);
+    dialogRef.current?.close();
+  };
+
+  // price: the chosen option's, otherwise the lowest among what still matches
+  const candidates = matching(selection).map(({ variant }) => variant);
+  const prices = (candidates.length ? candidates : variants).map(v => v.price);
+  const price = selected ? selected.price : hasVariants ? Math.min(...prices) : product.sell_price;
+  const priceVaries = !selected && new Set(prices).size > 1;
   const inStock = selected ? selected.is_in_stock : product.is_in_stock;
   const stock   = selected ? selected.stock : product.stock;
 
-  // the cart line — each variant is its own line
+  // the cart line — each option (or combination) is its own line
   const purchasable = hasVariants
     ? selected && {
         id:           product.id,
         variantId:    selected.id,
-        variantLabel: `${optionName}: ${selected.value}`,
+        variantLabel: types.map(type => `${type}: ${selection[type]}`).join(' · '),
         name:         product.name,
         image:        product.image,
         sell_price:   selected.price,
@@ -40,14 +93,16 @@ export default function ProductPurchase({ product }) {
         sell_price: product.sell_price, stock: product.stock, is_in_stock: product.is_in_stock,
       };
 
-  const openPicker = () => dialogRef.current?.showModal();
-  const closePicker = () => dialogRef.current?.close();
+  const openPicker = (type) => {
+    setOpenType(type);
+    dialogRef.current?.showModal();
+  };
 
-  const choose = (v) => {
-    if (!v.is_in_stock) return;
-    setSelected(v);
-    setHint(false);
-    closePicker();
+  // Add to Cart before everything is chosen: point at the first empty picker
+  const askForMissing = () => {
+    const first = types.find(type => !selection[type]);
+    setMissing(first);
+    openPicker(first);
   };
 
   // close the sheet when tapping the backdrop
@@ -63,7 +118,7 @@ export default function ProductPurchase({ product }) {
     <>
       <div className="mb-4 flex items-center justify-between gap-3">
         <p className="text-2xl font-bold text-primary">
-          {hasVariants && !selected
+          {priceVaries
             ? t('from_price', { price: formatPrice(price) })
             : `${formatPrice(price)} ${t('mmk')}`}
         </p>
@@ -74,23 +129,24 @@ export default function ProductPurchase({ product }) {
         )}
       </div>
 
-      {hasVariants && (
-        <div className="mb-4">
-          <p className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-text-secondary">{optionName}</p>
+      {/* one picker per option type: Color, Size, Power */}
+      {types.map(type => (
+        <div key={type} className="mb-4">
+          <p className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-text-secondary">{type}</p>
           <button
             type="button"
-            onClick={openPicker}
+            onClick={() => openPicker(type)}
             aria-haspopup="dialog"
-            className={`flex w-full items-center justify-between rounded-xl border bg-card px-4 py-3.5 text-left ${hint ? 'border-danger' : 'border-border'}`}
+            className={`flex w-full items-center justify-between rounded-xl border bg-card px-4 py-3.5 text-left ${missing === type ? 'border-danger' : 'border-border'}`}
           >
-            <span className={selected ? 'font-medium' : 'text-placeholder'}>
-              {selected ? selected.value : t('select_option_title', { option: optionName })}
+            <span className={selection[type] ? 'font-medium' : 'text-placeholder'}>
+              {selection[type] ?? t('select_option_title', { option: type })}
             </span>
             <IoChevronDown size={18} className="text-text-secondary" />
           </button>
-          {hint && <p className="mt-1.5 text-sm text-danger">{t('select_option_message', { option: optionName })}</p>}
+          {missing === type && <p className="mt-1.5 text-sm text-danger">{t('select_option_message', { option: type })}</p>}
         </div>
-      )}
+      ))}
 
       {/* pinned to the bottom on mobile so it's reachable while scrolling specs; inline on desktop */}
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] md:static md:z-auto md:mb-6 md:border-0 md:bg-transparent md:p-0">
@@ -99,7 +155,7 @@ export default function ProductPurchase({ product }) {
         ) : (
           <button
             type="button"
-            onClick={() => { setHint(true); openPicker(); }}
+            onClick={askForMissing}
             className="h-12 w-full rounded-xl bg-primary text-[15px] font-bold text-white"
           >
             {t('add_to_cart')}
@@ -110,39 +166,50 @@ export default function ProductPurchase({ product }) {
       {hasVariants && (
         <dialog
           ref={dialogRef}
-          aria-label={t('select_option_title', { option: optionName })}
+          aria-label={openType ? t('select_option_title', { option: openType }) : undefined}
           className="m-0 mt-auto max-h-[80vh] w-full max-w-none rounded-t-2xl bg-background p-0 text-text backdrop:bg-black/50 md:m-auto md:max-w-md md:rounded-2xl"
         >
-          <div className="sticky top-0 flex items-center justify-between border-b border-border bg-background px-5 py-4">
-            <h2 className="text-lg font-bold">{t('select_option_title', { option: optionName })}</h2>
-            <button type="button" onClick={closePicker} aria-label={t('close')} className="p-1">
-              <IoClose size={24} />
-            </button>
-          </div>
-          <ul className="px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-1">
-            {variants.map(v => {
-              const active = selected?.id === v.id;
-              return (
-                <li key={v.id}>
-                  <button
-                    type="button"
-                    onClick={() => choose(v)}
-                    disabled={!v.is_in_stock}
-                    aria-pressed={active}
-                    className={`flex w-full items-center rounded-lg px-2 py-3.5 text-left disabled:opacity-50 ${active ? 'bg-primary-light' : 'border-b border-border'}`}
-                  >
-                    <span className="flex-1">
-                      <span className={`block font-semibold ${active ? 'text-primary' : ''}`}>{v.value}</span>
-                      <span className="text-xs text-text-secondary">
-                        {formatPrice(v.price)} {t('mmk')} · {v.is_in_stock ? t('stock_count', { count: v.stock }) : t('out_of_stock')}
-                      </span>
-                    </span>
-                    {active && <IoCheckmarkCircle size={22} className="text-primary" />}
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+          {openType && (
+            <>
+              <div className="sticky top-0 flex items-center justify-between border-b border-border bg-background px-5 py-4">
+                <h2 className="text-lg font-bold">{t('select_option_title', { option: openType })}</h2>
+                <button type="button" onClick={() => dialogRef.current?.close()} aria-label={t('close')} className="p-1">
+                  <IoClose size={24} />
+                </button>
+              </div>
+              <ul className="px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-1">
+                {valuesOf(openType).map(value => {
+                  const active = selection[openType] === value;
+                  const canBuy = available(openType, value);
+                  const result = outcome(openType, value);
+                  return (
+                    <li key={value}>
+                      <button
+                        type="button"
+                        onClick={() => choose(openType, value)}
+                        disabled={!canBuy}
+                        aria-pressed={active}
+                        className={`flex w-full items-center rounded-lg px-2 py-3.5 text-left disabled:opacity-50 ${active ? 'bg-primary-light' : 'border-b border-border'}`}
+                      >
+                        <span className="flex-1">
+                          <span className={`block font-semibold ${active ? 'text-primary' : ''}`}>{value}</span>
+                          {/* price and stock once this choice completes the selection */}
+                          {!canBuy ? (
+                            <span className="text-xs text-text-secondary">{t('out_of_stock')}</span>
+                          ) : result && (
+                            <span className="text-xs text-text-secondary">
+                              {formatPrice(result.price)} {t('mmk')} · {t('stock_count', { count: result.stock })}
+                            </span>
+                          )}
+                        </span>
+                        {active && <IoCheckmarkCircle size={22} className="text-primary" />}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          )}
         </dialog>
       )}
     </>
