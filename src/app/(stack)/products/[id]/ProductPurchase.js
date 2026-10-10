@@ -6,6 +6,9 @@ import QuantityControl from '@/components/products/QuantityControl';
 import { useT } from '@/components/Providers';
 import { formatPrice } from '@/lib/links';
 
+// more choices than this (e.g. lens powers) show as a grid of buttons instead of a list
+const GRID_FROM = 8;
+
 // { Color: 'Brown', Power: '-2.00' } for one option row
 function optionMap(variant, types) {
   if (variant.options?.length) return Object.fromEntries(variant.options.map(o => [o.type, o.value]));
@@ -177,6 +180,28 @@ export default function ProductPurchase({ product }) {
                   <IoClose size={24} />
                 </button>
               </div>
+              {valuesOf(openType).length > GRID_FROM ? (
+                // long lists (e.g. 40 lens powers): a grid of buttons that fits on one screen
+                <div className="grid grid-cols-5 gap-2 px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-4">
+                  {valuesOf(openType).map(value => {
+                    const active = selection[openType] === value;
+                    const canBuy = available(openType, value);
+                    return (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => choose(openType, value)}
+                        disabled={!canBuy}
+                        aria-pressed={active}
+                        aria-label={canBuy ? value : `${value} · ${t('out_of_stock')}`}
+                        className={`h-11 rounded-lg border text-sm font-semibold tabular-nums disabled:border-border disabled:bg-surface disabled:text-text-disabled disabled:line-through ${active ? 'border-primary bg-primary text-white' : 'border-border bg-card'}`}
+                      >
+                        {value}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
               <ul className="px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-1">
                 {valuesOf(openType).map(value => {
                   const active = selection[openType] === value;
@@ -208,6 +233,7 @@ export default function ProductPurchase({ product }) {
                   );
                 })}
               </ul>
+              )}
             </>
           )}
         </dialog>
